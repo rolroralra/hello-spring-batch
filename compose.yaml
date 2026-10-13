@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: 'postgres:18.6-alpine'
+    container_name: hello-batch-postgres
+    environment:
+      POSTGRES_DB: batch
+      POSTGRES_USER: batch
+      POSTGRES_PASSWORD: batch
+      TZ: Asia/Seoul
+    ports:
+      - '5432:5432'
+    volumes:
+      # PostgreSQL 18 이미지부터 PGDATA 가 /var/lib/postgresql/18/docker 로 바뀌었으므로
+      # 상위 디렉토리(/var/lib/postgresql)를 마운트한다.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U batch -d batch' ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:

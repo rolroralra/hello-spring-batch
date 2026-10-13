@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: hello-spring-batch
+
+  # ---------------------------------------------------------------
+  # DataSource
+  #  - ./gradlew bootRun 으로 실행하면 spring-boot-docker-compose 가 compose.yaml 을 읽어
+  #    PostgreSQL 컨테이너를 띄우고 아래 접속 정보를 자동으로 덮어쓴다.
+  #  - docker compose up -d 로 직접 띄운 경우에도 아래 정보로 접속된다.
+  # ---------------------------------------------------------------
+  datasource:
+    url: jdbc:postgresql://localhost:5432/batch
+    username: batch
+    password: batch
+
+  docker:
+    compose:
+      # 애플리케이션이 종료되어도 컨테이너는 계속 띄워둔다. (배치는 금방 끝나기 때문)
+      lifecycle-management: start-only
+
+  # ---------------------------------------------------------------
+  # schema.sql / data.sql : 기동할 때마다 실습용 도메인 테이블과 데이터를 초기화한다.
+  # ---------------------------------------------------------------
+  sql:
+    init:
+      mode: always
+
+  jooq:
+    sql-dialect: postgres
+
+  batch:
+    jdbc:
+      # BATCH_JOB_INSTANCE 등 메타데이터 테이블을 Spring Batch 가 생성한다.
+      # (이미 테이블이 있으면 생성 에러는 무시된다: continue-on-error 기본값 true)
+      initialize-schema: always
+    job:
+      # 기동 시 실행할 Job 이름. --spring.batch.job.name=xxxJob 으로 바꿔서 실행한다.
+      name: helloJob
+
+# ---------------------------------------------------------------
+# 실습 애플리케이션 설정
+# ---------------------------------------------------------------
+batch:
+  report-dir: ./build/reports/batch
+
+logging:
+  level:
+    com.example.batch: info
+    # jOOQ 가 실행하는 SQL 을 보고 싶으면 debug 로 바꾼다.
+    org.jooq.tools.LoggerListener: info
